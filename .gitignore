@@ -1,0 +1,24 @@
+
+# Secrets & Environment
+.env
+env.cloud
+
+# Deployment Artifacts
+app.zip
+deploy.ps1
+get_ffmpeg.py
+
+# Binaries & Dependencies
+ffmpeg.exe
+ffmpeg.zip
+ffmpeg_temp/
+venv/
+__pycache__/
+*.pyc
+
+# Runtime Data
+uploads/
+temp/
+static/frames/*
+!static/frames/.gitkeep
+logs/

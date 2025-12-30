@@ -1,0 +1,10 @@
+Flask
+azure-storage-blob
+azure-identity
+celery[redis]
+google-genai
+openai
+python-dotenv
+imageio[ffmpeg]
+imageio[pyav]
+numpy

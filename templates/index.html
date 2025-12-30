@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ski Tech AI - Analyze Your Run</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Ski Tech AI</h1>
+            <p class="subtitle">Upload your skiing video for instant AI-powered technique analysis.</p>
+
+            <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
+                <label for="video-upload" class="upload-area">
+                    <span class="upload-icon">⛷️</span>
+                    <span style="display:block; margin-bottom: 0.5rem; font-weight:600;">Click to Upload Video</span>
+                    <span style="display:block; font-size: 0.9rem; color: #64748b;">MP4, MOV, AVI (Max 100MB)</span>
+                    <input type="file" name="video" id="video-upload" class="file-input" accept=".mp4,.mov,.avi"
+                        onchange="document.getElementById('upload-form').submit(); this.disabled=true; this.style.cursor='wait';">
+                </label>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

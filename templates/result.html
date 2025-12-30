@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result - Ski Tech AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Analysis Report (分析报告)</h1>
+
+        {# Safe Error Display #}
+        {% if error %}
+        <div class="error-message"
+            style="background-color: #ffcccc; color: #cc0000; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>System Error:</strong> {{ error }}
+        </div>
+        {% elif analysis is defined and analysis.error %}
+        <div class="error-message"
+            style="background-color: #ffcccc; color: #cc0000; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>Analysis Error:</strong> {{ analysis.error }}
+            {% if analysis.raw %}<br><small>Raw: {{ analysis.raw }}</small>{% endif %}
+        </div>
+        {% endif %}
+        {% if status == 'processing' %}
+        <h1>Analyzing Your Run...</h1>
+        <p class="subtitle">Our AI is extracting frames and calculating your metrics.</p>
+        <div class="loader"></div>
+        <p style="color: var(--text-secondary); margin-top: 1rem;">This usually takes 10-30 seconds.</p>
+        <script>
+            setTimeout(function () {
+                window.location.reload(1);
+            }, 2000);
+        </script>
+        {% elif status == 'failed' %}
+        <h1 style="color: var(--error-color)">Analysis Failed</h1>
+        <p class="subtitle">Something went wrong while processing your video.</p>
+        <div class="analysis-item" style="border-left: 4px solid var(--error-color);">
+            <p>{{ error }}</p>
+        </div>
+        <a href="/" class="btn">Try Again</a>
+        {% elif status == 'completed' %}
+        <h1>Analysis Complete</h1>
+        <p class="subtitle">Here is your technique breakdown.</p>
+
+        <div style="display: flex; justify-content: space-around; margin: 2rem 0;">
+            <div>
+                <div class="score-badge">{{ analysis.overall_technique_score }}/10</div>
+                <p style="color: var(--text-secondary)">Overall Score</p>
+            </div>
+        </div>
+
+        <div class="analysis-section">
+            <h2>Key Observations</h2>
+            {% for obs in analysis.key_observations %}
+            <div class="analysis-item">
+                <p>• {{ obs }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="analysis-section">
+            <h2>Coach's Advice</h2>
+            <div class="analysis-item" style="border-left: 4px solid var(--accent-color);">
+                <p>{{ analysis.technical_advice }}</p>
+            </div>
+        </div>
+
+        {% if analysis.frame_by_frame_analysis %}
+        <div class="analysis-section">
+            <h2>Frame Details</h2>
+            <div style="max-height: 300px; overflow-y: auto;">
+                {% for frame in analysis.frame_by_frame_analysis %}
+                <div class="analysis-item">
+                    <h3>Frame {{ frame.frame_index }}</h3>
+                    <p>{{ frame.comment }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <a href="/" class="btn" style="background-color: transparent; border: 1px solid var(--text-secondary);">Analyze
+            Another
+            Video</a>
+        {% endif %}
+    </div>
+    </div>
+</body>
+
+</html>
