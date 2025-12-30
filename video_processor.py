@@ -52,26 +52,54 @@ def extract_frames_for_display(video_path, output_folder, num_frames=10):
     if HAS_IMAGEIO:
         try:
             logger.info("Attempting frame extraction with ImageIO...")
-            # Allow auto-detection of plugin (prefers pyav or ffmpeg)
-            props = iio.improps(video_path)
-            total_frames = props.shape[0]
             
-            # Generate indices for evenly spaced frames
-            indices = np.linspace(0, total_frames - 1, num_frames, dtype=int)
-            
-            for i, idx in enumerate(indices):
-                try:
-                    frame = iio.imread(video_path, index=idx)
-                    filename = f"frame_{i}_{int(time.time())}.jpg"
-                    filepath = os.path.join(output_folder, filename)
-                    iio.imwrite(filepath, frame)
-                    extracted_paths.append(filename)
-                except Exception as read_err:
-                    logger.warning(f"Failed to read frame {idx}: {read_err}")
-                    continue
+            # METHOD A: Try to get total frames safely
+            total_frames = 0
+            try:
+                props = iio.improps(video_path)
+                total_frames = props.shape[0]
+            except Exception:
+                pass
+
+            # Validate total_frames (handle negative or huge numbers seen in logs)
+            if total_frames > 0 and total_frames < 1000000:
+                # Optimized Path: We know the count
+                indices = np.linspace(0, total_frames - 1, num_frames, dtype=int)
+                for i, idx in enumerate(indices):
+                    try:
+                        frame = iio.imread(video_path, index=idx)
+                        filename = f"frame_{i}_{int(time.time())}.jpg"
+                        filepath = os.path.join(output_folder, filename)
+                        iio.imwrite(filepath, frame)
+                        extracted_paths.append(filename)
+                    except Exception as read_err:
+                        logger.warning(f"Failed to read frame {idx}: {read_err}")
+                        continue
+            else:
+                # Robust Path: Iterate without knowing count
+                # We will just take frames with a stride estimation or 1fps
+                logger.info(f"Total frames unknown or invalid ({total_frames}). Using iterator.")
+                
+                # Iterate and pick every Kth frame? 
+                # Since we don't know length, we can't do perfect spacing.
+                # Strategy: Collect frames at roughly 1fps (assuming 30fps)
+                frames_captured = 0
+                stride = 30 # Assume 30fps, take 1 frame/sec
+                
+                for i, frame in enumerate(iio.imiter(video_path)):
+                    if i % stride == 0:
+                        filename = f"frame_{frames_captured}_{int(time.time())}.jpg"
+                        filepath = os.path.join(output_folder, filename)
+                        iio.imwrite(filepath, frame)
+                        extracted_paths.append(filename)
+                        frames_captured += 1
+                        
+                        if frames_captured >= num_frames:
+                            break
             
             if extracted_paths:
                 return extracted_paths
+
         except Exception as e:
             logger.warning(f"ImageIO extraction failed: {e}. Falling back to FFMPEG.")
 
