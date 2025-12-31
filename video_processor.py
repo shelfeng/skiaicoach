@@ -312,12 +312,13 @@ def get_coach(model_name: str) -> SkiCoachAI:
 
 # --- Main Entry Point ---
 
-def process_video(video_path, temp_dir):
+def process_video(video_path, temp_dir, model_name=None):
     """
     Main entry point.
     """
     # 1. Determine Model
-    model_name = os.getenv("AI_MODEL_NAME", "gemini-3-flash-preview")
+    if not model_name:
+        model_name = os.getenv("AI_MODEL_NAME", "gemini-3-flash-preview")
     
     # Num frames
     try:

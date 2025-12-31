@@ -79,8 +79,23 @@
             <div style="max-height: 300px; overflow-y: auto;">
                 {% for frame in analysis.frame_by_frame_analysis %}
                 <div class="analysis-item">
-                    <h3>Frame {{ frame.frame_index }}</h3>
-                    <p>{{ frame.comment }}</p>
+                    <div style="display: flex; gap: 15px; align-items: start;">
+                        {% if analysis.display_frames %}
+                        {# Calculate valid index #}
+                        {% set idx = frame.frame_index if frame.frame_index is defined else loop.index0 %}
+                        {% if analysis.display_frames[idx] is defined %}
+                        <div style="flex-shrink: 0;">
+                            <img src="{{ url_for('static', filename='frames/' + job_id + '/' + analysis.display_frames[idx]) }}"
+                                alt="Frame {{ idx }}"
+                                style="width: 150px; height: auto; border-radius: 8px; border: 1px solid #ddd;">
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        <div>
+                            <h3>Frame {{ frame.frame_index }}</h3>
+                            <p>{{ frame.comment }}</p>
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>

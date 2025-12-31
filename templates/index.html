@@ -18,6 +18,17 @@
             <p class="subtitle">Upload your skiing video for instant AI-powered technique analysis.</p>
 
             <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
+                <div class="model-select-container" style="margin-bottom: 1.5rem; text-align: left;">
+                    <label for="model_name"
+                        style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #334155;">Select AI
+                        Coach:</label>
+                    <select name="model_name" id="model_name"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background-color: #f8fafc; font-family: 'Inter', sans-serif;">
+                        <option value="gpt-5.2">Azure OpenAI (GPT-4o Deployment)</option>
+                        <option value="gemini-3-flash-preview">Google Gemini 3 Flash Preview</option>
+                    </select>
+                </div>
+
                 <label for="video-upload" class="upload-area">
                     <span class="upload-icon">⛷️</span>
                     <span style="display:block; margin-bottom: 0.5rem; font-weight:600;">Click to Upload Video</span>

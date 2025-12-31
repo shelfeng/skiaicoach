@@ -2,7 +2,7 @@ Flask
 azure-storage-blob
 azure-identity
 celery[redis]
-google-genai
+google-generativeai
 openai
 python-dotenv
 imageio[ffmpeg]

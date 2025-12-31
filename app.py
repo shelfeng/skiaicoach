@@ -79,11 +79,11 @@ def load_job(job_id):
         logging.error(f"Failed to load job {job_id}: {e}")
     return None
 
-def background_processing(job_id, file_source, is_azure=False):
+def background_processing(job_id, file_source, is_azure=False, model_name=None):
     """
     Background worker to process video.
     """
-    logging.info(f"Starting processing for job {job_id}")
+    logging.info(f"Starting processing for job {job_id} using model: {model_name}")
     temp_video_path = None
     
     try:
@@ -105,7 +105,8 @@ def background_processing(job_id, file_source, is_azure=False):
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
             
-        analysis_result = process_video(file_to_process, temp_dir)
+        # Pass model_name to process_video
+        analysis_result = process_video(file_to_process, temp_dir, model_name=model_name)
         
         # Update Job Status
         job_data = load_job(job_id) or {}
@@ -142,7 +143,10 @@ def upload_file():
     file = request.files['video']
     if file.filename == '':
         return redirect(request.url)
-        
+    
+    # Get user selected model
+    model_name = request.form.get('model_name', 'gemini-3-flash-preview') 
+    
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         job_id = str(uuid.uuid4())
@@ -157,7 +161,7 @@ def upload_file():
                 blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=blob_name)
                 blob_client.upload_blob(file)
                 
-                thread = threading.Thread(target=background_processing, args=(job_id, blob_name, True))
+                thread = threading.Thread(target=background_processing, args=(job_id, blob_name, True, model_name))
                 thread.start()
             except Exception as e:
                 return f"Azure Upload Failed: {e}", 500
@@ -166,7 +170,7 @@ def upload_file():
             filepath = os.path.join(UPLOAD_FOLDER, f"{job_id}_{filename}")
             file.save(filepath)
             
-            thread = threading.Thread(target=background_processing, args=(job_id, filepath, False))
+            thread = threading.Thread(target=background_processing, args=(job_id, filepath, False, model_name))
             thread.start()
         
         return redirect(url_for('result', job_id=job_id))
